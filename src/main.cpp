@@ -5,7 +5,7 @@
 class Game : public gg::GameEngine {
 private:
 	struct Pos {
-		float x,y;
+		int x,y;
 	};
 	enum Direction {
 		RIGHT,UP,LEFT,DOWN
@@ -14,6 +14,7 @@ private:
 	std::list<Pos> snake;
 	float snakeVelocity;
 	Direction snakeDirection;
+	float deltaTime;
 public:
 	Game(int _width, int _height, int _projector, const std::string& _title): gg::GameEngine(_width,_height,_projector,_title) {
 	}
@@ -22,14 +23,32 @@ public:
 	}
 public:
 	virtual bool onCreate() override {
-		snake = {{1.f,1.f}};
+		snake = {{1,1}};
 		snakeDirection = RIGHT;
 		snakeVelocity = 1.5f;
+		deltaTime = 0.f;
 		return true;
 	}
 
 	virtual bool onUpdate(float elapsed) override {
-		snake.front().x += snakeVelocity*elapsed;	
+		deltaTime += (elapsed*snakeVelocity);
+		if (deltaTime >= 1.f) {
+			switch (snakeDirection) {
+			case RIGHT:
+				snake.front().x += 1;
+				break;
+			case UP:
+				snake.front().y -= 1;
+				break;
+			case LEFT:
+				snake.front().x -= 1;
+				break;
+			case DOWN:
+				snake.front().y += 1;
+				break;
+			}
+			deltaTime = 0.f;
+		}
 		return true;
 	}
 
@@ -38,6 +57,7 @@ public:
 	}
 private:
 	virtual bool onDraw(const Cairo::RefPtr<Cairo::Context>& cr) override {
+		fillRect(cr,0,0,width*pixelSize,height*pixelSize,0.f,0.f,0.f);
 		for (auto it : snake) {
 			fillRect(cr,(it.x)*pixelSize,(it.y)*pixelSize,pixelSize,pixelSize,0.f,1.f,0.f);
 		}
@@ -54,7 +74,7 @@ private:
 	}
 	void grid(const Cairo::RefPtr<Cairo::Context>& cr) {
 		cr->save();
-		cr->set_source_rgb(1.f,1.f,1.f);
+		cr->set_source_rgb(0.f,0.f,0.f);
 		for (int i=0;i<=width;i++) {
 			cr->move_to(i*pixelSize,0);
 			cr->line_to(i*pixelSize,height*pixelSize);
