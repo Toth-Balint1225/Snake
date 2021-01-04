@@ -58,7 +58,7 @@ protected:
 	bool refresh() {
 		auto win = get_window();
 		if (win) {
-			Gdk::Rectangle screen(0,0,get_allocation().get_height(), get_allocation().get_width());
+			Gdk::Rectangle screen(0,0,get_allocation().get_width(), get_allocation().get_height());
 			win->invalidate_rect(screen, false);
 		}
 		return true;
@@ -88,6 +88,7 @@ void GamingWindow::show(GameEngine& game) {
 	if (!game.onCreate())
 		return;
 	gamingWindow.add(game);
+	game.set_size_request(game.pixelSize*game.width, game.pixelSize*game.height);
 	game.show();
 	gamingApp->run(gamingWindow);
 	game.onDestroy();

@@ -23,7 +23,7 @@ public:
 	}
 public:
 	virtual bool onCreate() override {
-		snake = {{1,1}};
+		snake = {{1,18}};
 		snakeDirection = RIGHT;
 		snakeVelocity = 1.5f;
 		deltaTime = 0.f;
@@ -55,7 +55,7 @@ public:
 	virtual bool onDestroy() override {
 		return true;
 	}
-private:
+protected:
 	virtual bool onDraw(const Cairo::RefPtr<Cairo::Context>& cr) override {
 		fillRect(cr,0,0,width*pixelSize,height*pixelSize,0.f,0.f,0.f);
 		for (auto it : snake) {
