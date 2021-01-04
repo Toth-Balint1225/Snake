@@ -23,6 +23,8 @@ private:
 
 
 class GameEngine : public Gtk::DrawingArea {
+private:
+	float refreshTimeout = 0.f;
 protected:
 	int width;
 	int height;
@@ -49,6 +51,7 @@ public:
 public:
 	void start(float timeout) {
 		Glib::signal_timeout().connect(sigc::mem_fun(*this,&GameEngine::frame),timeout);
+		refreshTimeout = timeout/1000;
 		GamingWindow::show(*this);
 	}
 protected:
@@ -62,7 +65,7 @@ protected:
 	}
 private:
 	bool frame() {
-		bool active = onUpdate();
+		bool active = onUpdate(refreshTimeout);
 		refresh();
 		return active;
 	}
@@ -70,7 +73,7 @@ private:
 	virtual bool onDraw(const Cairo::RefPtr<Cairo::Context>& cr) = 0;
 public:
 	virtual bool onCreate() = 0;
-	virtual bool onUpdate() = 0;
+	virtual bool onUpdate(float elapsed) = 0;
 	virtual bool onDestroy() = 0;
 protected:
 	virtual bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override {
