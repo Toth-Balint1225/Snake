@@ -18,6 +18,7 @@ public:
 	static void show(GameEngine& game);
 private:
 	static Glib::RefPtr<Gtk::Application> gamingApp;
+public:
 	static Gtk::Window gamingWindow;
 };
 

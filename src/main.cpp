@@ -17,6 +17,7 @@ private:
 	float deltaTime;
 public:
 	Game(int _width, int _height, int _projector, const std::string& _title): gg::GameEngine(_width,_height,_projector,_title) {
+		gg::GamingWindow::gamingWindow.signal_key_press_event().connect(sigc::mem_fun(*this,&Game::onKeyPress),false);	
 	}
 
 	virtual ~Game() {
@@ -55,7 +56,7 @@ public:
 	virtual bool onDestroy() override {
 		return true;
 	}
-protected:
+private:
 	virtual bool onDraw(const Cairo::RefPtr<Cairo::Context>& cr) override {
 		fillRect(cr,0,0,width*pixelSize,height*pixelSize,0.f,0.f,0.f);
 		for (auto it : snake) {
@@ -63,6 +64,11 @@ protected:
 		}
 		grid(cr);
 		return true;
+	}
+	bool onKeyPress(GdkEventKey* event) {
+		if (event->hardware_keycode == 83)
+			snakeDirection = DOWN;
+		return false;	
 	}
 	void fillRect(const Cairo::RefPtr<Cairo::Context>& cr,float x1,float y1,float w,float h,float r,float g,float b) {
 		cr->save();
