@@ -1,23 +1,40 @@
+#include <list>
+#include <string>
 #include "GameEngine.h"
 
-class Game : public GameEngine {
+class Game : public gg::GameEngine {
+private:
+	struct Pos {
+		int x,y;
+	};
+	
+	std::list<Pos> snake;
 public:
-	bool onCreate() {
+	Game(int _width, int _height, int _projector, const std::string& _title): gg::GameEngine(_width,_height,_projector,_title) {
 	}
 
-	bool onUpdate() {
+	virtual ~Game() {
+	}
+public:
+	virtual bool onCreate() override {
+		return true;
 	}
 
-	bool onDestroy() {
+	virtual bool onUpdate() override {
+		return true;
+	}
+
+	virtual bool onDestroy() override {
+		return true;
 	}
 private:
-	bool onDraw(const Cairo::RefPtr<Cairo::Context>& cr) {
+	virtual bool onDraw(const Cairo::RefPtr<Cairo::Context>& cr) override {
+		return true;
 	}
 };
 
 int main() {
-	Game game;
-	game.constructWindow(100,100,10,"Snake");
+	Game game(10,10,10,"Snake");
 	game.start(30);
 	return 0;
 }
