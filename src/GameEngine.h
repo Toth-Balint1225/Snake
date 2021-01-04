@@ -18,11 +18,14 @@ public:
 	static void show(GameEngine& game);
 private:
 	static Glib::RefPtr<Gtk::Application> gamingApp;
+public:
 	static Gtk::Window gamingWindow;
 };
 
 
 class GameEngine : public Gtk::DrawingArea {
+private:
+	float refreshTimeout = 0.f;
 protected:
 	int width;
 	int height;
@@ -49,20 +52,21 @@ public:
 public:
 	void start(float timeout) {
 		Glib::signal_timeout().connect(sigc::mem_fun(*this,&GameEngine::frame),timeout);
+		refreshTimeout = timeout/1000;
 		GamingWindow::show(*this);
 	}
 protected:
 	bool refresh() {
 		auto win = get_window();
 		if (win) {
-			Gdk::Rectangle screen(0,0,get_allocation().get_height(), get_allocation().get_width());
+			Gdk::Rectangle screen(0,0,get_allocation().get_width(), get_allocation().get_height());
 			win->invalidate_rect(screen, false);
 		}
 		return true;
 	}
 private:
 	bool frame() {
-		bool active = onUpdate();
+		bool active = onUpdate(refreshTimeout);
 		refresh();
 		return active;
 	}
@@ -70,7 +74,7 @@ private:
 	virtual bool onDraw(const Cairo::RefPtr<Cairo::Context>& cr) = 0;
 public:
 	virtual bool onCreate() = 0;
-	virtual bool onUpdate() = 0;
+	virtual bool onUpdate(float elapsed) = 0;
 	virtual bool onDestroy() = 0;
 protected:
 	virtual bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override {
@@ -85,6 +89,7 @@ void GamingWindow::show(GameEngine& game) {
 	if (!game.onCreate())
 		return;
 	gamingWindow.add(game);
+	game.set_size_request(game.pixelSize*game.width, game.pixelSize*game.height);
 	game.show();
 	gamingApp->run(gamingWindow);
 	game.onDestroy();
