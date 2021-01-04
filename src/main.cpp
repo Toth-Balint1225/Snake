@@ -3,6 +3,11 @@
 #include <string>
 #include "GameEngine.h"
 
+#define HW_RIGHT 40
+#define HW_UP 25
+#define HW_LEFT 38
+#define HW_DOWN 39
+
 class Game : public gg::GameEngine {
 private:
 	struct Pos {
@@ -27,7 +32,7 @@ public:
 	virtual bool onCreate() override {
 		snake = {{1,18}};
 		snakeDirection = RIGHT;
-		snakeVelocity = 1.5f;
+		snakeVelocity = 5.f;
 		deltaTime = 0.f;
 		return true;
 	}
@@ -67,7 +72,14 @@ private:
 		return true;
 	}
 	bool onKeyPress(GdkEventKey* event) {
-		std::cout << event->hardware_keycode << std::endl;
+		if (event->hardware_keycode == HW_RIGHT)
+			snakeDirection = RIGHT;
+		if (event->hardware_keycode == HW_UP)
+			snakeDirection = UP;
+		if (event->hardware_keycode == HW_LEFT)
+			snakeDirection = LEFT;
+		if (event->hardware_keycode == HW_DOWN)
+			snakeDirection = DOWN;
 		return false;	
 	}
 	void fillRect(const Cairo::RefPtr<Cairo::Context>& cr,float x1,float y1,float w,float h,float r,float g,float b) {
