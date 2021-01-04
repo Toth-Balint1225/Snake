@@ -1,3 +1,4 @@
+#include <iostream>
 #include <list>
 #include <string>
 #include "GameEngine.h"
@@ -66,8 +67,7 @@ private:
 		return true;
 	}
 	bool onKeyPress(GdkEventKey* event) {
-		if (event->hardware_keycode == 83)
-			snakeDirection = DOWN;
+		std::cout << event->hardware_keycode << std::endl;
 		return false;	
 	}
 	void fillRect(const Cairo::RefPtr<Cairo::Context>& cr,float x1,float y1,float w,float h,float r,float g,float b) {
