@@ -55,8 +55,8 @@ private:
 			int x = rand()%width;
 			int y = rand()%height;
 			if (std::find_if(snake.begin(),snake.end(),[x,y](const Pos& p) {
-				return p.x != x || p.y != y;
-			}) != snake.end()) {
+				return p.x == x && p.y == y;
+			}) == snake.end()) {
 				apple = {x,y};
 				appleGenerated = true;
 				appleOnScreen = true;
@@ -91,8 +91,15 @@ public:
 					break;
 				}
 			}
+
+			// apple consumption detection
+			if (snake.front().x == apple.x && snake.front().y == apple.y) {
+				generateApple();
+			} else {
+				snake.pop_back();
+			}
+
 			deltaTime = 0.f;
-			snake.pop_back();
 		}
 		if (!appleOnScreen) {
 			generateApple();
