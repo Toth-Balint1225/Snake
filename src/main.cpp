@@ -21,6 +21,7 @@ private:
 	float snakeVelocity;
 	Direction snakeDirection;
 	float deltaTime;
+	bool gameOver;
 public:
 	Game(int _width, int _height, int _projector, const std::string& _title): gg::GameEngine(_width,_height,_projector,_title) {
 		gg::GamingWindow::gamingWindow.signal_key_press_event().connect(sigc::mem_fun(*this,&Game::onKeyPress),false);	
@@ -51,6 +52,7 @@ public:
 		snakeDirection = RIGHT;
 		snakeVelocity = 5.f;
 		deltaTime = 0.f;
+		gameOver = false;
 		return true;
 	}
 
@@ -58,7 +60,13 @@ public:
 		deltaTime += (elapsed*snakeVelocity);
 		if (deltaTime >= 1.f) {
 			turnSnake(snakeDirection);
+			//wall collision detection
+			if (snake.front().x < 0 || snake.front().x >= width || snake.front().y < 0 || snake.front().y >= height)
+				gameOver = true;
 			deltaTime = 0.f;
+		}
+		if (gameOver) {
+			gg::GamingWindow::gamingWindow.close();
 		}
 		return true;
 	}
