@@ -1,4 +1,5 @@
-#include <iostream>
+#include <cstdlib>
+#include <algorithm>
 #include <list>
 #include <string>
 #include "GameEngine.h"
@@ -21,6 +22,9 @@ private:
 	float snakeVelocity;
 	Direction snakeDirection;
 	float deltaTime;
+	bool gameOver;
+	Pos apple;
+	bool appleOnScreen;
 public:
 	Game(int _width, int _height, int _projector, const std::string& _title): gg::GameEngine(_width,_height,_projector,_title) {
 		gg::GamingWindow::gamingWindow.signal_key_press_event().connect(sigc::mem_fun(*this,&Game::onKeyPress),false);	
@@ -32,25 +36,43 @@ private:
 	void turnSnake(Direction direction) {
 		switch (direction) {
 		case RIGHT:
-			snake.front().x += 1;
+			snake.push_front({snake.front().x+1,snake.front().y});
 			break;
 		case UP:
-			snake.front().y -= 1;
+			snake.push_front({snake.front().x,snake.front().y-1});
 			break;
 		case LEFT:
-			snake.front().x -= 1;
+			snake.push_front({snake.front().x-1,snake.front().y});
 			break;
 		case DOWN:
-			snake.front().y += 1;
+			snake.push_front({snake.front().x,snake.front().y+1});
 			break;
 		}
 	}
+	bool generateApple() {
+		bool appleGenerated = false;
+		while (!appleGenerated) {
+			int x = rand()%width;
+			int y = rand()%height;
+			if (std::find_if(snake.begin(),snake.end(),[x,y](const Pos& p) {
+				return p.x == x && p.y == y;
+			}) == snake.end()) {
+				apple = {x,y};
+				appleGenerated = true;
+				appleOnScreen = true;
+			}
+		}
+		return true;
+	}
 public:
 	virtual bool onCreate() override {
-		snake = {{1,18}};
+		srand(time(NULL));
+		snake = {{5,1},{4,1},{3,1},{2,1},{1,1}};
 		snakeDirection = RIGHT;
 		snakeVelocity = 5.f;
 		deltaTime = 0.f;
+		gameOver = false;
+		appleOnScreen = false;
 		return true;
 	}
 
@@ -58,8 +80,33 @@ public:
 		deltaTime += (elapsed*snakeVelocity);
 		if (deltaTime >= 1.f) {
 			turnSnake(snakeDirection);
+			//wall collision detection
+			if (snake.front().x < 0 || snake.front().x >= width || snake.front().y < 0 || snake.front().y >= height)
+				gameOver = true;
+
+			// collision in itself detection
+			for (auto it = snake.begin();it!=snake.end();++it) {
+				if (it != snake.begin() && it->x == snake.front().x && it->y == snake.front().y) {
+					gameOver = true;
+					break;
+				}
+			}
+
+			// apple consumption detection
+			if (snake.front().x == apple.x && snake.front().y == apple.y) {
+				generateApple();
+			} else {
+				snake.pop_back();
+			}
+
 			deltaTime = 0.f;
 		}
+		if (!appleOnScreen) {
+			generateApple();
+		}
+		if (gameOver) {
+			gg::GamingWindow::gamingWindow.close();
+		} 
 		return true;
 	}
 
@@ -72,6 +119,7 @@ private:
 		for (auto it : snake) {
 			fillRect(cr,(it.x)*pixelSize,(it.y)*pixelSize,pixelSize,pixelSize,0.f,1.f,0.f);
 		}
+		fillRect(cr,apple.x*pixelSize,apple.y*pixelSize,pixelSize,pixelSize,1.f,0.f,0.f);
 		grid(cr);
 		return true;
 	}
