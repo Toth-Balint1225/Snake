@@ -33,22 +33,22 @@ private:
 	void turnSnake(Direction direction) {
 		switch (direction) {
 		case RIGHT:
-			snake.front().x += 1;
+			snake.push_front({snake.front().x+1,snake.front().y});
 			break;
 		case UP:
-			snake.front().y -= 1;
+			snake.push_front({snake.front().x,snake.front().y-1});
 			break;
 		case LEFT:
-			snake.front().x -= 1;
+			snake.push_front({snake.front().x-1,snake.front().y});
 			break;
 		case DOWN:
-			snake.front().y += 1;
+			snake.push_front({snake.front().x,snake.front().y+1});
 			break;
 		}
 	}
 public:
 	virtual bool onCreate() override {
-		snake = {{1,18}};
+		snake = {{5,1},{4,1},{3,1},{2,1},{1,1}};
 		snakeDirection = RIGHT;
 		snakeVelocity = 5.f;
 		deltaTime = 0.f;
@@ -63,11 +63,20 @@ public:
 			//wall collision detection
 			if (snake.front().x < 0 || snake.front().x >= width || snake.front().y < 0 || snake.front().y >= height)
 				gameOver = true;
+
+			// collision in itself detection
+			for (auto it = snake.begin();it!=snake.end();++it) {
+				if (it != snake.begin() && it->x == snake.front().x && it->y == snake.front().y) {
+					gameOver = true;
+					break;
+				}
+			}
 			deltaTime = 0.f;
+			snake.pop_back();
 		}
 		if (gameOver) {
 			gg::GamingWindow::gamingWindow.close();
-		}
+		} 
 		return true;
 	}
 
