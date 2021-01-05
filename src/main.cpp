@@ -1,6 +1,12 @@
+#include <iostream>
 #include <list>
 #include <string>
 #include "GameEngine.h"
+
+#define HW_RIGHT 40
+#define HW_UP 25
+#define HW_LEFT 38
+#define HW_DOWN 39
 
 class Game : public gg::GameEngine {
 private:
@@ -22,11 +28,28 @@ public:
 
 	virtual ~Game() {
 	}
+private:
+	void turnSnake(Direction direction) {
+		switch (direction) {
+		case RIGHT:
+			snake.front().x += 1;
+			break;
+		case UP:
+			snake.front().y -= 1;
+			break;
+		case LEFT:
+			snake.front().x -= 1;
+			break;
+		case DOWN:
+			snake.front().y += 1;
+			break;
+		}
+	}
 public:
 	virtual bool onCreate() override {
 		snake = {{1,18}};
 		snakeDirection = RIGHT;
-		snakeVelocity = 1.5f;
+		snakeVelocity = 5.f;
 		deltaTime = 0.f;
 		return true;
 	}
@@ -34,20 +57,7 @@ public:
 	virtual bool onUpdate(float elapsed) override {
 		deltaTime += (elapsed*snakeVelocity);
 		if (deltaTime >= 1.f) {
-			switch (snakeDirection) {
-			case RIGHT:
-				snake.front().x += 1;
-				break;
-			case UP:
-				snake.front().y -= 1;
-				break;
-			case LEFT:
-				snake.front().x -= 1;
-				break;
-			case DOWN:
-				snake.front().y += 1;
-				break;
-			}
+			turnSnake(snakeDirection);
 			deltaTime = 0.f;
 		}
 		return true;
@@ -66,8 +76,22 @@ private:
 		return true;
 	}
 	bool onKeyPress(GdkEventKey* event) {
-		if (event->hardware_keycode == 83)
+		if (event->hardware_keycode == HW_RIGHT && snakeDirection != LEFT) {
+			snakeDirection = RIGHT;
+			onUpdate(1.f);
+		}
+		if (event->hardware_keycode == HW_UP && snakeDirection != DOWN) {
+			snakeDirection = UP;
+			onUpdate(1.f);
+		}
+		if (event->hardware_keycode == HW_LEFT && snakeDirection != RIGHT) {
+			snakeDirection = LEFT;
+			onUpdate(1.f);
+		}
+		if (event->hardware_keycode == HW_DOWN && snakeDirection != UP) {
 			snakeDirection = DOWN;
+			onUpdate(1.f);
+		}
 		return false;	
 	}
 	void fillRect(const Cairo::RefPtr<Cairo::Context>& cr,float x1,float y1,float w,float h,float r,float g,float b) {
